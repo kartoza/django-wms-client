@@ -1,0 +1,5 @@
+include README.md
+include LICENSE.txt
+include requirements.txt
+recursive-include wms_client/static *
+recursive-include wms_client/templates *
