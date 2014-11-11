@@ -5,9 +5,6 @@ from .base import *  # noqa
 INSTALLED_APPS += (
     'raven.contrib.django.raven_compat',  # enable Raven plugin
     'pipeline',
-    'user_map',
-    'leaflet',
-    'bootstrapform'
 )
 
 # define template function (example for underscore)
@@ -15,15 +12,6 @@ INSTALLED_APPS += (
 
 # enable cached storage - requires uglify.js (node.js)
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
-
-
-# User map sets up auth where users are identified by their email,
-# not by their user name.
-AUTH_USER_MODEL = 'user_map.User'
-AUTHENTICATION_BACKENDS = [
-    'user_map.auth_backend.UserMapAuthBackend',
-    'django.contrib.auth.backends.ModelBackend']
-
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',

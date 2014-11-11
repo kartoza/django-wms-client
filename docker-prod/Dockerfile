@@ -34,8 +34,8 @@ RUN pip install uwsgi
 ADD uwsgi.conf /uwsgi.conf
 ADD uwsgi_params /uwsgi_params
 
-# Open port 49360 as we will be running our uwsgi socket on that
-EXPOSE 49360
+# Open port 1521 as we will be running our uwsgi socket on that
+EXPOSE 1521
 
 
 # You could put --protocol=http as a parameter (to test it directly)

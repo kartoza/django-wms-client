@@ -3,7 +3,7 @@
 from django.contrib.gis.db import models
 
 
-class Role(models.Model):
+class WMS(models.Model):
     """Role for users e.g. developer, trainer, user."""
     class Meta:
         """Meta class."""

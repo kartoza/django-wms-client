@@ -69,7 +69,6 @@ body > .container {
     box-shadow: 0 1px 7px #999999;
 }
 .leaflet-control-stats a {
-    background-image: url("../img/update_stats.png");
     background-position: 50% 50%;
     background-repeat: no-repeat;
     display: inline-block;
