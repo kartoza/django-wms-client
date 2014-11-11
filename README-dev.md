@@ -91,7 +91,7 @@ Now set these options:
   filesystem and the filesystem in the remote (docker) host. Click the ellipsis
   and add a run that points to your git checkout on your local host and the
   /home/web directory in the docker host. e.g.
-  * Local path: /home/timlinux/dev/python/wms_client-django
+  * Local path: /home/timlinux/dev/python/django-wms-app
   * Remote path: /home/web
 * click OK to save your run configuration
 

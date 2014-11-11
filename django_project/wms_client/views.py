@@ -5,10 +5,8 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import RequestContext, loader
 
-from wms_client.forms import (
-    WMSForm
 from wms_client.models import WMS
-from wms_client.app_settings import Foo
+from wms_client.app_settings import *
 
 
 def index(request):
@@ -21,9 +19,6 @@ def index(request):
     :rtype: HttpResponse
     """
 
-    context = {
-        'wms': wms,
-    }
-    return render(request, 'wms_client/index.html', context)
+    return render(request, 'wms_client/index.html')
 
 

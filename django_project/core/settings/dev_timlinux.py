@@ -7,7 +7,7 @@ DATABASES = {
         'NAME': 'gis',
         'USER': 'docker',
         'PASSWORD': 'docker',
-        'HOST': 'wms_client-django-postgis',
+        'HOST': 'django-wms-client-postgis',
         # Set to empty string for default.
         'PORT': '5432',
     }
