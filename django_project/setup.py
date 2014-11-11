@@ -18,7 +18,7 @@ setup(
     zip_safe=False,
     scripts=[],
     url='http://pypi.python.org/pypi/django-wms-client/',
-    license='LICENSE.txt',
+    license='../LICENSE.txt',
     description=(
         'An app to let you include browsable OGC WMS '
         'maps on your django web site.'),

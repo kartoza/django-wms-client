@@ -1,67 +1,122 @@
-# Welcome to the django wms client code base!
+# Welcome to the InaSAFE Web code base!
 
-**django-wms-client** is a django app that will allow you to embed maps 
-via the Open Geospatial Consortium Web Mapping Service (OGC-WMS or just WMS)
-into your django application.
+Django WMS Client is a django application for providing a gallery of wms maps.
+We provide the following functionality:
 
-Please note that this is an early version and so may not be ready for your 
-needs yet.
+* Automated service metadata retrieval (via [owslib](http://geopython.github.io/OWSLib/) ).
+* Gallery of available services (with thumbnail and description of each registered service).
+* Map view which generates a simple leaflet browser for a WMS endpoint.
+
+**Please note that this project is in the early phase of its development.**
+
+You can visit a running instance of this project at 
+[http://wms_client_demo.kartoza.com](http://wms_client_demo.kartoza.com).
 
 # Status
 
 These badges reflect the current status of our development branch:
 
-Tests status: [![Build Status](https://travis-ci.org/kartoza/django-wms-client.svg)](https://travis-ci.org/kartoza/django-wms-client)
+Tests status: [![Build Status](https://travis-ci.org/kartoza/wms_client-django.svg)](https://travis-ci.org/kartoza/wms_client-django)
 
-Coverage status: [![Coverage Status](https://coveralls.io/repos/kartoza/django-wms-client/badge.png?branch=develop)](https://coveralls.io/r/kartoza/django-wms-client?branch=develop)
+Coverage status: [![Coverage Status](https://coveralls.io/repos/kartoza/django_wms_client/badge.png?branch=develop)](https://coveralls.io/r/kartoza/django_wms_client?branch=develop)
 
-Development status: [![Stories in Ready](https://badge.waffle.io/kartoza/django-wms-client.svg?label=ready&title=Ready)](http://waffle.io/kartoza/django-wms-client) [![Stories in Progress](https://badge.waffle.io/kartoza/django-wms-client.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/kartoza/django-wms-client)
+Development status: [![Stories in Ready](https://badge.waffle.io/kartoza/django_wms_client.svg?label=ready&title=Ready)](http://waffle.io/kartoza/django_wms_client) [![Stories in Ready](https://badge.waffle.io/kartoza/django_wms_client.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/kartoza/django_wms_client)
 
 # License
 
-Code: [BSD License](http://www.freebsd.org/copyright/freebsd-license.html)
+Code: [Free BSD License](http://www.freebsd.org/copyright/freebsd-license.html)
 
+Out intention is to foster wide spread usage of the data and the code that we
+provide. Please use this code and data in the interests of humanity and not for
+nefarious purposes.
 
 # Setup instructions
 
-1. First django-wms-client with pip:
+## Simple deployment under docker
 
-   ```
-    pip install django-wms-client
-   ```
+### Overview
 
-2. Next include it in ``INSTALLED_APPS`` in your settings.py:
-   ```
-    INSTALLED_APPS = (
-        ...
-        'wms_client',
-    )
-   ```
+You need two docker containers:
 
-3. Add the wms-client URLconf in your project urls.py e.g:
-   ```
-    url(r'^wms-client/', include('wms_client.urls')),
-   ```
+* A postgis container
+* A uwsgi container
 
-4. Run ```python manage.py migrate``` to create the wms_client models. 
+We assume you are running nginx on the host and we will set up a reverse
+proxy to pass django requests into the uwsgi container. Static files will
+be served directly using nginx on the host.
 
-5. Visit http://127.0.0.1:8000/wms-client/ to open the app.
+A convenience script is provided under ``scripts\create_docker_env.sh`` which
+should get everything set up for you. Note you need at least docker 1.2 - use
+the [installation notes](http://docs.docker.com/installation/ubuntulinux/) 
+on the official docker page to get it set up.
 
-6. Visit your admin page (the default is http://127.0.0.1:8000/admin/wms-maps) 
-  to manage user as an admin. 
+### Check out the source
 
 
-Testing
---------
-
-You can run the test suite by using django manage.py from your django project:
+First checkout out the source tree:
 
 ```
-python manage.py test wms_client
+git clone git://github.com/kartoza/django_wms_client.git
 ```
 
-or you can do it from the root of this django apps by running:
+### Build your docker images and run them
+
+You can simply run the provided script and it will build and deploy the docker
+images for you.
+
+``
+cd wms_client-django
+scripts\create_docker_env.sh
+``
+
+### Setup nginx reverse proxy
+
+You should create a new nginx virtual host - please see 
+``wms_client-nginx.conf`` in the root directory of the source for an example.
+
+
+## For local development
+
+### Install dependencies
+
 ```
-python setup.py test
+virtualenv venv
+source venv/bin/activate
+pip install -r REQUIREMENTS-dev.txt
+nodeenv -p --node=0.10.31
+npm -g install yuglify
 ```
+
+### Create your dev profile
+
+
+```
+cd django_project/core/settings
+cp dev_timlinux.py dev_${USER}.py
+```
+
+Now edit ``dev_<your username>`` setting your database connection details as
+needed. We assume you have created a postgres (with postgis extentions) 
+database somewhere that you can use for your development work. See 
+[http://postgis.net/install/](http://postgis.net/install/) for details on doing
+that.
+
+### Running migrate, collect static, and development server
+
+Prepare your database and static resources by doing this:
+
+```
+virtualenv venv
+source venv/bin/activate
+cd django_project
+python manage.py migrate --settings=core.settings.dev_${USER}
+python manage.py collectstatic --noinput --settings=core.settings.dev_${USER}
+python manage.py runserver --settings=core.settings.dev_${USER}
+```
+
+**Note:** You can also develop in docker using the instructions provided in
+[README-dev.md](https://github.com/aifdr/wms_client-django/blob/develop/README-dev.md).
+
+
+
 
