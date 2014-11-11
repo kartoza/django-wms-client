@@ -21,7 +21,7 @@ DATABASES = {
 
 # Project apps
 INSTALLED_APPS += (
-    'frontend',
+    'wms_client',
 )
 
 

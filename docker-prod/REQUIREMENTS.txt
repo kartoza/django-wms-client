@@ -6,4 +6,3 @@ django-model-utils
 django-pipeline
 nodeenv
 raven
-django-user-map

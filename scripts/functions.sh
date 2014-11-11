@@ -1,23 +1,23 @@
 #!/bin/bash
 
-ORGANISATION=wms_client
-PROJECT=wms_client-django
+ORGANISATION=kartoza
+PROJECT=django_wms_client
 
 # Root directory of this git project
 PROJECT_DIR=$(readlink -fn -- "${BASH_SOURCE%/*}/..")
 
 # Configurable options (though we recommend not changing these)
-POSTGIS_PORT=1419
+POSTGIS_PORT=1519
 POSTGIS_CONTAINER_NAME=${PROJECT}-postgis
 
-QGIS_SERVER_PORT=1420
+QGIS_SERVER_PORT=1520
 QGIS_SERVER_CONTAINER_NAME=${PROJECT}-qgis-server
 
-DJANGO_SERVER_PORT=1421
+DJANGO_SERVER_PORT=1521
 DJANGO_CONTAINER_NAME=${PROJECT}
 
-DJANGO_DEV_SERVER_SSH_PORT=1422
-DJANGO_DEV_SERVER_HTTP_PORT=1480
+DJANGO_DEV_SERVER_SSH_PORT=1522
+DJANGO_DEV_SERVER_HTTP_PORT=1580
 DJANGO_DEV_CONTAINER_NAME=${PROJECT}-dev
 # Configurable options you probably want to change
 

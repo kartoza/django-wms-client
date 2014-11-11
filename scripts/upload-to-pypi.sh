@@ -6,6 +6,10 @@ echo "Have you updated README & Docs?"
 read -sn 1 -p "Press any key to continue..."
 echo
 
+
+pushd .
+PROJECT_DIR=$(readlink -fn -- "${BASH_SOURCE%/*}/..")
+cd ${PROJECT_DIR}/django_project
 VERSION=`cat setup.py | grep version | grep -o "[0-9}*\.[0-9]*\.[0-9]*"`
 TAG_VERSION=`echo $VERSION| sed 's/\./_/g'`
 echo "Version: " $VERSION
@@ -14,3 +18,4 @@ git tag -s version-$TAG_VERSION -m "Version $VERSION"
 git push --tags origin version-$TAG_VERSION
 
 python setup.py sdist upload
+popd
