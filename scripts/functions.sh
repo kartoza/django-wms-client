@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ORGANISATION=kartoza
-PROJECT=django_wms_client
+PROJECT=django-wms-client
 
 # Root directory of this git project
 PROJECT_DIR=$(readlink -fn -- "${BASH_SOURCE%/*}/..")
@@ -123,7 +123,7 @@ function run_django_server {
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
         -v ${PROJECT_DIR}:/home/web \
         -v /tmp/${PROJECT}-tmp:/tmp/${PROJECT}-tmp \
-        -p 49360:49360 \
+        -p ${DJANGO_SERVER_PORT}:${DJANGO_SERVER_PORT} \
         -d -t ${ORGANISATION}/${PROJECT} $@
 }
 

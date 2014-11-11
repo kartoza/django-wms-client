@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t kartoza/django_wms_client-dev .
+docker build -t kartoza/django-wms-client-dev .
