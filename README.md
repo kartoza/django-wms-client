@@ -62,12 +62,20 @@ git clone git://github.com/kartoza/django_wms_client.git
 ### Build your docker images and run them
 
 You can simply run the provided script and it will build and deploy the docker
-images for you.
+images for you. Note if you are using ``apt-cacher-ng`` (we recommend it as
+it will dramatically speed up build times), be sure to edit 
+``docker-prod/71-apt-cacher-ng`` and comment out existing lines, adding your
+own server. Alternatively if you wish to fetch packages are downloaded directly
+from the internet, ensure that all lines are commented out in your hosts
 
-``
+* ``docker-prod/71-apt-cacher-ng``
+* ``docker-dev/71-apt-cacher-ng``
+
+
+```
 cd wms_client-django
 scripts\create_docker_env.sh
-``
+```
 
 ### Setup nginx reverse proxy
 
