@@ -29,19 +29,22 @@ class WMSResource(models.Model):
         help_text='The identifier for the WMS Resource.',
         null=False,
         blank=False,
-        unique=True
+        unique=True,
+        max_length=100
     )
 
     uri = models.CharField(
         help_text='URI for the WMS resource',
         null=False,
-        blank=False
+        blank=False,
+        max_length=100
     )
 
     layers = models.CharField(
         help_text='The layers that you want to retrieve.',
         blank=True,
         null=False,
+        max_length=100,
     )
 
     descriptions = models.TextField(
