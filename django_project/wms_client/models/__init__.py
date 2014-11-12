@@ -1,1 +1,1 @@
-from wms_client.models.wms import *
+from wms_client.models.wms_resource import *

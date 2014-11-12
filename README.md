@@ -82,6 +82,24 @@ scripts\create_docker_env.sh
 You should create a new nginx virtual host - please see 
 ``wms_client-nginx.conf`` in the root directory of the source for an example.
 
+## Frequently Asked Questions
+
+**Q**: I have updated the code base and need to rebuild and deploy the 
+container - what is the best way to do that?
+
+**A:**: Just do this:
+
+```
+cd docker-prod
+./build.sh
+cd -
+scripts/restart_django_server.sh
+```
+
+You may want to rebuild and restart your development docker container too (
+see [README-dev.md](https://github.com/aifdr/wms_client-django/blob/develop/README-dev.md)).
+
+
 
 ## For local development
 
