@@ -11,7 +11,7 @@ from django.contrib.gis.db import models
 from django.conf.global_settings import MEDIA_ROOT
 from django.utils.text import slugify
 import os
-from owslib.wms import WebMapService
+from owslib.wms import WebMapService, ServiceException, CapabilitiesError
 
 
 class WMSResource(models.Model):
@@ -49,7 +49,7 @@ class WMSResource(models.Model):
 
     descriptions = models.TextField(
         help_text='This is similar to abstract part of a wms resources.',
-        blank=False,
+        blank=True,
     )
 
     preview = models.ImageField(
@@ -63,8 +63,15 @@ class WMSResource(models.Model):
 
     def save(self, *args, **kwargs):
         """Overloaded save method."""
-        self.populate_wms_resource()
-        self.slug = slugify(self.name)
+        try:
+            self.populate_wms_resource()
+        except ValueError:
+            # If the URI is not valid.
+            self.descriptions += ' This Uri probably is not valid.'
+        except (ServiceException, CapabilitiesError):
+            # If there is an error, use the value from user.
+            pass
+        self.slug = slugify(unicode(self.name))
         if not self.layers:
             self.layers = self.name
         super(WMSResource, self).save(*args, **kwargs)
