@@ -17,3 +17,4 @@ pdbpp
 # hizashi-utils
 hizashi-utils
 
+OWSLib
