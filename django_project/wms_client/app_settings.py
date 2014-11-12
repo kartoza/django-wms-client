@@ -14,9 +14,3 @@ default_leaflet_tiles = (
      'license</a>')
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-)

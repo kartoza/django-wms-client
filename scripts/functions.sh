@@ -25,6 +25,15 @@ PG_USER=docker
 PG_PASS=docker
 OPTIONS="-e DATABASE_NAME=gis -e DATABASE_USERNAME=${PG_USER} -e DATABASE_PASSWORD=${PG_PASS} -e DATABASE_HOST=${POSTGIS_CONTAINER_NAME} -e DJANGO_SETTINGS_MODULE=core.settings.prod_docker"
 
+function clean {
+    echo "Cleaning away old pyc etc files."
+    echo "-------------------------------------------------"
+    find . -name '*~' -exec rm {} \;
+    find . -name '*.pyc' -exec rm {} \;
+    find . -name '*.pyo' -exec rm {} \;
+    find . -name '*.orig' -exec rm {} \;
+}
+
 # -------------------------
 function restart_postgis_server {
 
