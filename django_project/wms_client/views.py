@@ -22,3 +22,17 @@ def index(request):
     return render(request, 'wms_client/index.html')
 
 
+def map(request, slug):
+    """Index page which renders a WMS map.
+
+    :param request: A django request object.
+    :type request: request
+
+    :param slug: Slug
+
+
+    :returns: Response will be a nice looking map page.
+    :rtype: HttpResponse
+    """
+
+    return render(request, 'wms_client/index.html')

@@ -110,3 +110,10 @@ have permissions to read it as the user you are running ``runserver`` as. A
 common cause of this is if you are running the server in both production
 mode and developer mode on the same host. Simply remove the file or change
 ownership permissions so that you can read/write it.
+
+**Q**: I get ``django.db.utils.OperationalError: FATAL: database "gis" does not exist"``
+when running the ``scripts/create_docker_env.sh`` script.  I checked at the 
+the databases in the postgis container and, it has the "gis" database.
+
+**A**: Your computer may be taking a long time to initialise the postgis 
+database - try increasing the sleep interval in ``scripts/functions.sh``.
