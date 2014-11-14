@@ -13,13 +13,13 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RenameField(
             model_name='wmsresource',
-            old_name='Descriptions',
-            new_name='Description'
+            old_name='descriptions',
+            new_name='description'
         ),
         migrations.AlterField(
             model_name='wmsresource',
             name='description',
-            field=models.FloatField(help_text=b'Description for the map. If left blank, the WMS abstract text will be used.', blank=True),
+            field=models.TextField(help_text=b'Description for the map. If left blank, the WMS abstract text will be used.', blank=True),
             preserve_default=True,
         ),
         migrations.AlterField(
