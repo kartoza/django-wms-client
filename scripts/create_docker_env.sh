@@ -2,7 +2,6 @@
 
 source ${BASH_SOURCE%/*}/functions.sh
 
-# First lets get Postgis going
 restart_postgis_server
 restart_qgis_server
 
