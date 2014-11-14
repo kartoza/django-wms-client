@@ -16,6 +16,9 @@ from owslib.wms import WebMapService, ServiceException, CapabilitiesError
 
 class WMSResource(models.Model):
     """WMS Resource model."""
+
+    zoom_lookup = [360.0 / 2**i for i in range(20)]
+
     class Meta:
         """Meta class."""
         app_label = 'wms_client'
@@ -58,6 +61,23 @@ class WMSResource(models.Model):
         blank=True
     )
 
+    zoom = models.IntegerField()
+
+    min_zoom = models.IntegerField()
+
+    max_zoom = models.IntegerField(default=19)
+
+    north = models.FloatField()
+    east = models.FloatField()
+    south = models.FloatField()
+    west = models.FloatField()
+
+    def center_south(self):
+        return sum([self.north, self.south]) / 2
+
+    def center_east(self):
+        return sum([self.north, self.south]) / 2
+
     def __unicode__(self):
         return self.name
 
@@ -81,3 +101,28 @@ class WMSResource(models.Model):
         wms = WebMapService(self.uri)
         self.name = wms.identification.title
         self.descriptions = wms.identification.abstract
+        if self.layers:
+            layer_name = self.layers[0]  # Take the first layer.
+            bounding_box_wgs84 = wms.contents[layer_name].boundingBoxWGS84
+
+            self.north = bounding_box_wgs84[3]
+            self.east = bounding_box_wgs84[0]
+            self.south = bounding_box_wgs84[1]
+            self.east = bounding_box_wgs84[2]
+            self.min_zoom = self.get_min_zoom()
+            self.zoom = self.min_zoom
+
+        else:
+            return
+
+    def get_min_zoom(self):
+        length_north_south = abs(self.north - self.south)
+        length_east_west = abs(self.east - self.west)
+
+        length_map = max(length_north_south, length_east_west)
+
+        i = 0
+        while length_map < self.zoom_lookup[i] or i < 19:
+            i += 1
+
+        return i
