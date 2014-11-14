@@ -191,11 +191,14 @@ class WMSResource(models.Model):
             if not self.west:
                 self.west = min(west)
 
-            # It will only be available if self.layers is not empty.
-            if not self.min_zoom:
-                self.min_zoom = self.get_min_zoom()
-            if not self.zoom:
-                self.zoom = self.min_zoom
+        if self.min_zoom is None or self.min_zoom < self.get_min_zoom():
+            self.min_zoom = self.get_min_zoom()
+                    
+        if self.zoom is None:
+            self.zoom = self.min_zoom
+        # Zoom must be in the min/max range
+        if self.zoom < self.min_zoom:
+            self.zoom = self.min_zoom
 
     def get_min_zoom(self):
         length_north_south = abs(self.north - self.south)
