@@ -122,7 +122,12 @@ class WMSResource(models.Model):
         length_map = max(length_north_south, length_east_west)
 
         i = 0
-        while length_map < self.zoom_lookup[i] or i < 19:
+        while length_map < self.zoom_lookup[i] and i < 19:
             i += 1
 
-        return i
+        # Get the closest zoom
+        if (abs(length_map - self.zoom_lookup[i]) <
+                abs(length_map - self.zoom_lookup[i - 1])):
+            return i
+        else:
+            return i - 1
