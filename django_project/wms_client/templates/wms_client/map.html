@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            background: white;
+        }
+    </style>
+{% endblock extra_css %}
+
+
+{% block content %}
+<div id="map"></div>
+
+{%  endblock %}
+
+{% block extra_js %}
+<script>
+    var map = L.map('map', {
+        center: [-33.95293, 20.82824],
+        zoom: 14,
+        minZoom: 14,
+        maxZoom: 18,
+        maxBounds: [
+            [-33.91444, 20.75351],
+            [-33.98731, 20.90626]
+        ]
+    });
+    var qgis = L.tileLayer.wms("{{  wms.uri }}", {
+        layers: '{{ wms.layers }}',
+        format: 'image/png',
+        transparent: true,
+        attribution: ''
+    }).addTo(map);
+</script>
+{% endblock extra_js %}
