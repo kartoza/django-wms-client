@@ -142,8 +142,14 @@ class WMSResource(models.Model):
             self.south = bounding_box_wgs84[1]
             self.west = bounding_box_wgs84[0]
 
-        self.min_zoom = self.get_min_zoom()
-        self.zoom = self.min_zoom
+        if self.min_zoom is None or self.min_zoom < self.get_min_zoom():
+            self.min_zoom = self.get_min_zoom()
+                    
+        if self.zoom is None:
+            self.zoom = self.min_zoom
+        # Zoom must be in the min/max range
+        if self.zoom < self.min_zoom:
+            self.zoom = self.min_zoom
 
     def get_min_zoom(self):
         length_north_south = abs(self.north - self.south)
