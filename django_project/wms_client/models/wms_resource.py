@@ -29,7 +29,7 @@ class WMSResource(models.Model):
     )
 
     name = models.CharField(
-        help_text='The identifier for the WMS Resource.',
+        help_text='A name for the WMS map.',
         null=False,
         blank=False,
         unique=True,
@@ -44,14 +44,19 @@ class WMSResource(models.Model):
     )
 
     layers = models.CharField(
-        help_text='The layers that you want to retrieve.',
+        help_text=(
+            'The layers to be included in the map. Separate with commas, '
+            'no spaces between the commas. If left blank the top of '
+            'the layer list tree will be used by default.'),
         blank=True,
         null=False,
         max_length=100,
     )
 
-    descriptions = models.TextField(
-        help_text='This is similar to abstract part of a wms resources.',
+    description = models.TextField(
+        help_text=(
+            'Description for the map. If left blank, the WMS abstract text '
+            'will be used.'),
         blank=True,
     )
 
@@ -61,16 +66,42 @@ class WMSResource(models.Model):
         blank=True
     )
 
-    zoom = models.IntegerField()
+    zoom = models.IntegerField(
+        help_text='Default zoom level (1-19) for this map.',
+        blank=True
+    )
 
-    min_zoom = models.IntegerField()
+    min_zoom = models.IntegerField(
+        help_text='Default minimum zoom level (1-19) for this map.',
+        blank=True
+    )
 
-    max_zoom = models.IntegerField(default=19)
+    max_zoom = models.IntegerField(
+        help_text=(
+            'Default minimum zoom level (1-19) for this map. Defaults to 19'),
+        blank=True,
+        default=19)
 
-    north = models.FloatField()
-    east = models.FloatField()
-    south = models.FloatField()
-    west = models.FloatField()
+    north = models.FloatField(
+        help_text=(
+            'Northern boundary in decimal degrees. Will default to maxima '
+            'of all layers.'),
+        blank=True)
+    east = models.FloatField(
+        help_text=(
+            'Eastern boundary in decimal degrees. Will default to maxima '
+            'of all layers.'),
+        blank=True)
+    south = models.FloatField(
+        help_text=(
+            'Southern boundary in decimal degrees. Will default to minima '
+            'of all layers.'),
+        blank=True)
+    west = models.FloatField(
+        help_text=(
+            'Western boundary in decimal degrees. Will default to minima '
+            'of all layers.'),
+        blank=True)
 
     def center_south(self):
         return sum([self.north, self.south]) / 2
@@ -87,7 +118,7 @@ class WMSResource(models.Model):
             self.populate_wms_resource()
         except ValueError:
             # If the URI is not valid.
-            self.descriptions += ' This Uri probably is not valid.'
+            self.description += ' This Uri probably is not valid.'
         except (ServiceException, CapabilitiesError):
             # If there is an error, use the value from user.
             pass
@@ -100,8 +131,8 @@ class WMSResource(models.Model):
         """Populate the model fields based on a uri."""
         wms = WebMapService(self.uri)
         self.name = wms.identification.title
-        self.descriptions = wms.identification.abstract
-        
+        self.description = wms.identification.abstract
+
         if self.layers:
             layer_name = self.layers.split(',')[0]  # Take the first layer.
             bounding_box_wgs84 = wms.contents[layer_name].boundingBoxWGS84
