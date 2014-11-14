@@ -24,13 +24,13 @@
 {% block extra_js %}
 <script>
     var map = L.map('map', {
-        center: [-33.95293, 20.82824],
+        center: [{{ wms.center_south }}, {{ wms.center_east }}],
         zoom: 14,
         minZoom: 14,
         maxZoom: 18,
         maxBounds: [
-            [-33.91444, 20.75351],
-            [-33.98731, 20.90626]
+            [{{ wms.north }}, {{ wms.east }}],
+            [{{ wms.south }}, {{ wms.west }}]
         ]
     });
     var qgis = L.tileLayer.wms("{{  wms.uri }}", {

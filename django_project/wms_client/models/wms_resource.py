@@ -101,19 +101,18 @@ class WMSResource(models.Model):
         wms = WebMapService(self.uri)
         self.name = wms.identification.title
         self.descriptions = wms.identification.abstract
+        
         if self.layers:
-            layer_name = self.layers[0]  # Take the first layer.
+            layer_name = self.layers.split(',')[0]  # Take the first layer.
             bounding_box_wgs84 = wms.contents[layer_name].boundingBoxWGS84
 
             self.north = bounding_box_wgs84[3]
-            self.east = bounding_box_wgs84[0]
-            self.south = bounding_box_wgs84[1]
             self.east = bounding_box_wgs84[2]
-            self.min_zoom = self.get_min_zoom()
-            self.zoom = self.min_zoom
+            self.south = bounding_box_wgs84[1]
+            self.west = bounding_box_wgs84[0]
 
-        else:
-            return
+        self.min_zoom = self.get_min_zoom()
+        self.zoom = self.min_zoom
 
     def get_min_zoom(self):
         length_north_south = abs(self.north - self.south)
