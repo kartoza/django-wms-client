@@ -1,19 +1,13 @@
 #!/bin/bash
 
-# Configurable options you probably want to change
-ORGANISATION=kartoza
-PROJECT=django-wms-client
-PG_USER=docker
-PG_PASS=docker
-BASE_PORT=1522
+# Configurable options you probably want to change are stored in config.sh
+source ${BASH_SOURCE%/*}/config.sh
 
 # Configurable options (though we recommend not changing these)
 # Root directory of this git project
 PROJECT_DIR=$(readlink -fn -- "${BASH_SOURCE%/*}/..")
 GIS_DATA_DIR=${PROJECT_DIR}/webmaps
 
-# This is configured in the dockerfile
-DJANGO_UWSGI_INTERNAL_PORT=1521
 # To run in test mode, simply set the test mode env var in your script
 # e.g.
 #
@@ -222,7 +216,6 @@ function manage {
         ${OPTIONS} \
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
         -v ${PROJECT_DIR}:/home/web \
-        -v /tmp/${PROJECT}-tmp:/tmp/${PROJECT}-tmp \
         --entrypoint="/usr/bin/python" \
         -i -t ${ORGANISATION}/${PROJECT} \
          /home/web/django_project/manage.py "$@"
@@ -251,7 +244,6 @@ function run_django_server {
     echo "------------------------------------------"
     build_django_image
 
-    mkdir /tmp/${PROJECT}-tmp
     docker kill ${DJANGO_CONTAINER_NAME}
     docker rm ${DJANGO_CONTAINER_NAME}
     docker run \
@@ -261,7 +253,6 @@ function run_django_server {
         ${OPTIONS} \
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
         -v ${PROJECT_DIR}:/home/web \
-        -v /tmp/${PROJECT}-tmp:/tmp/${PROJECT}-tmp \
         -p ${DJANGO_SERVER_PORT}:${DJANGO_UWSGI_INTERNAL_PORT} \
         -d -t ${ORGANISATION}/${PROJECT} $@
 }
@@ -284,7 +275,6 @@ function run_django_dev_server {
     echo "python manage.py runserver 0.0.0.0:${DJANGO_DEV_SERVER_HTTP_PORT}"
     echo "------------------------------------------"
 
-    mkdir /tmp/${PROJECT}-tmp
     docker kill ${DJANGO_DEV_CONTAINER_NAME}
     docker rm ${DJANGO_DEV_CONTAINER_NAME}
     docker run \
@@ -294,7 +284,6 @@ function run_django_dev_server {
         ${OPTIONS} \
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
         -v ${PROJECT_DIR}:/home/web \
-        -v /tmp/${PROJECT}-tmp:/tmp/${PROJECT}-tmp \
         -p ${DJANGO_DEV_SERVER_SSH_PORT}:22 \
         -p ${DJANGO_DEV_SERVER_HTTP_PORT}:${DJANGO_DEV_SERVER_HTTP_PORT} \
         -d -t ${ORGANISATION}/${PROJECT}-dev $@
