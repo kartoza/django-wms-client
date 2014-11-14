@@ -199,6 +199,8 @@ class WMSResource(models.Model):
         # Zoom must be in the min/max range
         if self.zoom < self.min_zoom:
             self.zoom = self.min_zoom
+        if not self.max_zoom:
+            self.max_zoom = 19
 
     def get_min_zoom(self):
         length_north_south = abs(self.north - self.south)
