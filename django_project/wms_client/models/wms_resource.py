@@ -1,4 +1,4 @@
-# coding=utf-8
+    # coding=utf-8
 """Model class for WMS Resource"""
 __author__ = 'ismailsunni'
 __project_name = 'django-wms-client'
@@ -10,6 +10,7 @@ __doc__ = ''
 from django.contrib.gis.db import models
 from django.conf.global_settings import MEDIA_ROOT
 from django.utils.text import slugify
+from django.core.validators import MaxValueValidator, MinValueValidator
 import os
 from owslib.wms import WebMapService, ServiceException, CapabilitiesError
 
@@ -61,11 +62,27 @@ class WMSResource(models.Model):
         blank=True
     )
 
-    zoom = models.IntegerField()
+    zoom = models.IntegerField(
+        validators=[
+            MaxValueValidator(19),
+            MinValueValidator(0)
+        ]
+    )
 
-    min_zoom = models.IntegerField()
+    min_zoom = models.IntegerField(
+        validators=[
+            MaxValueValidator(19),
+            MinValueValidator(0)
+        ]
+    )
 
-    max_zoom = models.IntegerField(default=19)
+    max_zoom = models.IntegerField(
+        default=19,
+        validators=[
+            MaxValueValidator(19),
+            MinValueValidator(0)
+        ],
+    )
 
     north = models.FloatField()
     east = models.FloatField()
@@ -99,20 +116,39 @@ class WMSResource(models.Model):
     def populate_wms_resource(self):
         """Populate the model fields based on a uri."""
         wms = WebMapService(self.uri)
-        self.name = wms.identification.title
-        self.descriptions = wms.identification.abstract
+        if not self.name:
+            self.name = wms.identification.title
+        if not self.descriptions:
+            self.descriptions = wms.identification.abstract
         
         if self.layers:
-            layer_name = self.layers.split(',')[0]  # Take the first layer.
-            bounding_box_wgs84 = wms.contents[layer_name].boundingBoxWGS84
+            north = []
+            east = []
+            south = []
+            west = []
 
-            self.north = bounding_box_wgs84[3]
-            self.east = bounding_box_wgs84[2]
-            self.south = bounding_box_wgs84[1]
-            self.west = bounding_box_wgs84[0]
+            for layer in self.layers:
+                bounding_box_wgs84 = wms.contents[layer].boundingBoxWGS84
+                north.append(bounding_box_wgs84[3])
+                east.append(bounding_box_wgs84[2])
+                south.append(bounding_box_wgs84[1])
+                west.append(bounding_box_wgs84[0])
 
-        self.min_zoom = self.get_min_zoom()
-        self.zoom = self.min_zoom
+            # Do not set if they have been set.
+            if not self.north:
+                self.north = max(north)
+            if not self.east:
+                self.east = max(east)
+            if not self.south:
+                self.south = min(south)
+            if not self.west:
+                self.west = min(west)
+
+            # It will only be available if self.layers is not empty.
+            if not self.min_zoom:
+                self.min_zoom = self.get_min_zoom()
+            if not self.zoom:
+                self.zoom = self.min_zoom
 
     def get_min_zoom(self):
         length_north_south = abs(self.north - self.south)
