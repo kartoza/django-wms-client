@@ -29,7 +29,8 @@ PIPELINE_JS = {
     'contrib': {
         'source_filenames': (
             'js/jquery-1.11.1.min.js',
-            'js/bootstrap.js'
+            'js/bootstrap.js',
+            'wms_client/js/leaflet.js'
         ),
         'output_filename': 'js/contrib.js',
     },
@@ -45,6 +46,7 @@ PIPELINE_CSS = {
     'contrib': {
         'source_filenames': (
             'css/bootstrap.min.css',
+            'wms_client/css/leaflet.css',
         ),
     'output_filename': 'css/contrib.css',
         'extra_context': {

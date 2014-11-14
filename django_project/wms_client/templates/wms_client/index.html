@@ -17,14 +17,14 @@
         {% for wms in wms_set %}
         <div class="col-sm-6 col-md-4">
             <div class="thumbnail">
-                <a href="/wms/{{ wms.slug }}">
+                <a href="/map/{{ wms.slug }}">
                     <img src="{{ wms.preview }}"
                          alt="{{ wms.name }} Thumbnail">
                 </a>
                 <div class="caption">
                     <h3>{{ wms.name }}</h3>
                     <p>{{ wms.description }}</p>
-                    <p><a href="/wms/{{ wms.slug }}"
+                    <p><a href="/map/{{ wms.slug }}"
                           class="btn btn-default"
                           role="button">View</a></p>
                 </div>
