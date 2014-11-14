@@ -25,9 +25,9 @@
 <script>
     var map = L.map('map', {
         center: [{{ wms.center_south }}, {{ wms.center_east }}],
-        zoom: 14,
-        minZoom: 14,
-        maxZoom: 18,
+        zoom: {{ wms.zoom }},
+        minZoom: {{ wms.min_zoom }},
+        maxZoom: {{ wms.max_zoom }},
         maxBounds: [
             [{{ wms.north }}, {{ wms.east }}],
             [{{ wms.south }}, {{ wms.west }}]
