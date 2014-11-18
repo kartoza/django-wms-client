@@ -1,4 +1,4 @@
-# Welcome to the InaSAFE Web code base!
+# Welcome to the Django WMS code base!
 
 Django WMS Client is a django application for providing a gallery of wms maps.
 We provide the following functionality:
