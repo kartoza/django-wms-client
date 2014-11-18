@@ -1,4 +1,4 @@
-# coding=utf-8
+    # coding=utf-8
 """Model class for WMS Resource"""
 __author__ = 'ismailsunni'
 __project_name = 'django-wms-client'
@@ -10,6 +10,7 @@ __doc__ = ''
 from django.contrib.gis.db import models
 from django.conf.global_settings import MEDIA_ROOT
 from django.utils.text import slugify
+from django.core.validators import MaxValueValidator, MinValueValidator
 import os
 from owslib.wms import WebMapService, ServiceException, CapabilitiesError
 
@@ -68,40 +69,63 @@ class WMSResource(models.Model):
 
     zoom = models.IntegerField(
         help_text='Default zoom level (1-19) for this map.',
-        blank=True
+        blank=True,
+        validators=[
+            MaxValueValidator(19),
+            MinValueValidator(0)
+        ]
     )
 
     min_zoom = models.IntegerField(
-        help_text='Default minimum zoom level (1-19) for this map.',
-        blank=True
+        help_text='Default minimum zoom level (0-19) for this map.',
+        blank=True,
+        validators=[
+            MaxValueValidator(19),
+            MinValueValidator(0)
+        ],
+        null=True
     )
 
     max_zoom = models.IntegerField(
         help_text=(
-            'Default minimum zoom level (1-19) for this map. Defaults to 19'),
+            'Default minimum zoom level (0-19) for this map. Defaults to 19'),
         blank=True,
-        default=19)
+        default=19,
+        validators=[
+            MaxValueValidator(19),
+            MinValueValidator(0)
+        ],
+        null=True
+    )
 
     north = models.FloatField(
         help_text=(
             'Northern boundary in decimal degrees. Will default to maxima '
             'of all layers.'),
-        blank=True)
+        blank=True,
+        null=True
+    )
     east = models.FloatField(
         help_text=(
             'Eastern boundary in decimal degrees. Will default to maxima '
             'of all layers.'),
-        blank=True)
+        blank=True,
+        null=True
+    )
     south = models.FloatField(
         help_text=(
             'Southern boundary in decimal degrees. Will default to minima '
             'of all layers.'),
-        blank=True)
+        blank=True,
+        null=True
+    )
     west = models.FloatField(
         help_text=(
             'Western boundary in decimal degrees. Will default to minima '
             'of all layers.'),
-        blank=True)
+        blank=True,
+        null=True
+    )
 
     def center_south(self):
         return sum([self.north, self.south]) / 2
@@ -116,31 +140,56 @@ class WMSResource(models.Model):
         """Overloaded save method."""
         try:
             self.populate_wms_resource()
-        except ValueError:
-            # If the URI is not valid.
-            self.description += ' This Uri probably is not valid.'
+        # except ValueError:
+        #     # If the URI is not valid.
+        #     if 'This Uri probably is not valid.' not in self.description:
+        #         self.description += ' This Uri probably is not valid.'
         except (ServiceException, CapabilitiesError):
             # If there is an error, use the value from user.
             pass
         self.slug = slugify(unicode(self.name))
-        if not self.layers:
-            self.layers = self.name
+
         super(WMSResource, self).save(*args, **kwargs)
 
     def populate_wms_resource(self):
         """Populate the model fields based on a uri."""
         wms = WebMapService(self.uri)
-        self.name = wms.identification.title
-        self.description = wms.identification.abstract
+        if not self.name:
+            self.name = wms.identification.title
+        if not self.description:
+            self.description = wms.identification.abstract
+
+        # If empty, set to all layers available
+        if not self.layers:
+            self.layers = ','.join(wms.contents.keys())
 
         if self.layers:
-            layer_name = self.layers.split(',')[0]  # Take the first layer.
-            bounding_box_wgs84 = wms.contents[layer_name].boundingBoxWGS84
+            north = []
+            east = []
+            south = []
+            west = []
 
-            self.north = bounding_box_wgs84[3]
-            self.east = bounding_box_wgs84[2]
-            self.south = bounding_box_wgs84[1]
-            self.west = bounding_box_wgs84[0]
+            layers = self.layers.split(',')
+            for layer in layers:
+                try:
+                    bounding_box_wgs84 = wms.contents[layer].boundingBoxWGS84
+                except KeyError:
+                    continue
+
+                north.append(bounding_box_wgs84[3])
+                east.append(bounding_box_wgs84[2])
+                south.append(bounding_box_wgs84[1])
+                west.append(bounding_box_wgs84[0])
+
+            # Do not set if they have been set.
+            if not self.north:
+                self.north = max(north)
+            if not self.east:
+                self.east = max(east)
+            if not self.south:
+                self.south = min(south)
+            if not self.west:
+                self.west = min(west)
 
         if self.min_zoom is None or self.min_zoom < self.get_min_zoom():
             self.min_zoom = self.get_min_zoom()
@@ -150,6 +199,8 @@ class WMSResource(models.Model):
         # Zoom must be in the min/max range
         if self.zoom < self.min_zoom:
             self.zoom = self.min_zoom
+        if not self.max_zoom:
+            self.max_zoom = 19
 
     def get_min_zoom(self):
         length_north_south = abs(self.north - self.south)

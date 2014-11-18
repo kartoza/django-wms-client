@@ -30,6 +30,49 @@ Out intention is to foster wide spread usage of the data and the code that we
 provide. Please use this code and data in the interests of humanity and not for
 nefarious purposes.
 
+# Purpose
+
+This django app allows you to easily publish your QGIS Server (or any WMS based) projects within django - its available at:
+
+​https://github.com/kartoza/django-wms-client
+
+Its usable both as a simple standalone project (mainly for testing purposes) or as a django app that you can embed into any other django project (e.g. your mezzanine CMS).​ A complete docker environment is provided which you can use to test and deploy under the same architecture.
+
+## Django admin
+
+A django admin page is the basic mechanism used for registering new resources:
+
+![selection_001](https://cloud.githubusercontent.com/assets/178003/5083740/eae5400a-6f03-11e4-96f6-08d4827ab2cd.png)
+
+You can define a number of properties about each resource, though at minimum only the name and URI are required. The rest will be autopopulated by parsing a WMS ``getCapabilitiesRequest`` for the service. Just make sure to:
+
+* Populate the abstract for your service offering
+* Ensure that your service offering provides spherical mercator (EPSG:3857)
+
+![selection_004](https://cloud.githubusercontent.com/assets/178003/5083744/f407f5f6-6f03-11e4-8ccb-90edd9f94ea8.png)
+
+Using this approach you can populate as many services (``WMS Resources``) as you like:
+
+
+
+## The index view
+
+On the front end, we provide two views. The index view provides a gallery of all the maps you have registered:
+
+![selection_006](https://cloud.githubusercontent.com/assets/178003/5083810/e815a8d2-6f04-11e4-916f-86927bab1b80.png)
+
+
+## The map view
+
+The map view provides a leaflet full screen map that presents the given WMS Resource.
+
+
+
+![selection_007](https://cloud.githubusercontent.com/assets/178003/5083882/0d65b324-6f06-11e4-980a-d3e93f3910ab.png)
+
+
+
+
 # Setup instructions
 
 ## Simple deployment under docker
