@@ -9,7 +9,7 @@ from django.conf import settings
 default_leaflet_tiles = (
     'OpenStreetMap',
     'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    ('© <a hr   ef="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
+    ('© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
      '</a> and contributors, under an <a '
      'href="http://www.openstreetmap.org/copyright" target="_parent">open '
      'license</a>')
