@@ -144,7 +144,7 @@ class WMSResource(models.Model):
 
         if self.min_zoom is None or self.min_zoom < self.get_min_zoom():
             self.min_zoom = self.get_min_zoom()
-                    
+
         if self.zoom is None:
             self.zoom = self.min_zoom
         # Zoom must be in the min/max range
