@@ -12,6 +12,10 @@ RUN apt-get -y install openssh-server
 RUN mkdir /var/run/sshd
 
 #-------------Application Specific Stuff ----------------------------------------------------
+
+ADD REQUIREMENTS-dev.txt /REQUIREMENTS-dev.txt
+RUN pip install -r /REQUIREMENTS-dev.txt
+
 # Open port 22 so linked containers can see it and 8000 for django test server
 EXPOSE 22 8000
 ADD start.sh /start.sh
