@@ -1,9 +1,9 @@
 # coding=utf-8
 """Views."""
 
-from django.shortcuts import render, render_to_response
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.template import RequestContext, loader
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template import RequestContext
 
 from wms_client.models import WMSResource
 from wms_client.app_settings import *
@@ -22,7 +22,7 @@ def index(request):
     return render(
         request,
         'wms_client/index.html',
-        {'wms_set': wms_set})
+        context_instance=RequestContext(request, {'wms_set': wms_set}))
 
 
 def map(request, slug):
