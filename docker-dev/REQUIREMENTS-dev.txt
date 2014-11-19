@@ -1,4 +1,4 @@
--r docker-prod/REQUIREMENTS.txt
+# -r docker-prod/REQUIREMENTS.txt
 
 coverage
 pep8

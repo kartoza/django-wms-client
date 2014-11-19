@@ -133,7 +133,8 @@ You should create a new nginx virtual host - please see
 ```
 virtualenv venv
 source venv/bin/activate
-pip install -r REQUIREMENTS-dev.txt
+pip install -r docker-prod/REQUIREMENTS.txt
+pip install -r docker-dev/REQUIREMENTS-dev.txt
 nodeenv -p --node=0.10.31
 npm -g install yuglify
 ```
