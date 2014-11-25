@@ -7,11 +7,15 @@ __date__ = '11/11/14'
 __copyright__ = 'imajimatika@gmail.com'
 __doc__ = ''
 
+
+import os
 from django.contrib.gis.db import models
 from django.conf.global_settings import MEDIA_ROOT
 from django.utils.text import slugify
 from django.core.validators import MaxValueValidator, MinValueValidator
-import os
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
+import random
 from owslib.wms import WebMapService, ServiceException, CapabilitiesError
 
 
@@ -44,14 +48,13 @@ class WMSResource(models.Model):
         max_length=100
     )
 
-    layers = models.CharField(
+    layers = models.TextField(
         help_text=(
             'The layers to be included in the map. Separate with commas, '
             'no spaces between the commas. If left blank the top of '
             'the layer list tree will be used by default.'),
         blank=True,
         null=False,
-        max_length=100,
     )
 
     description = models.TextField(
@@ -147,7 +150,16 @@ class WMSResource(models.Model):
         except (ServiceException, CapabilitiesError):
             # If there is an error, use the value from user.
             pass
-        self.slug = slugify(unicode(self.name))
+        if not self.slug:
+            self.slug = slugify(unicode(self.name))
+
+        # Populate preview
+        # noinspection PyBroadException
+        try:
+            if not self.preview:
+                self.populate_preview()
+        except Exception as _:
+            pass
 
         super(WMSResource, self).save(*args, **kwargs)
 
@@ -218,3 +230,47 @@ class WMSResource(models.Model):
             return i
         else:
             return i - 1
+
+    def populate_preview(self):
+        """Return thumbnail for preview image."""
+        wms = WebMapService(self.uri)
+
+        # Get layers
+        # noinspection PyBroadException
+        try:
+            layers = self.layers.split(',')
+        except:
+            layers = None
+        # Get random layer if not specified
+        if not layers:
+            layers = [random.choice(list(wms.contents))]
+
+        srs = 'EPSG:4326'
+        size = (300, 300)
+        bbox = (self.west, self.south, self.east, self.north)
+        image_formats = wms.getOperationByName('GetMap').formatOptions
+        image_format = 'image/jpeg'
+        if image_format in image_formats:
+            pass
+        elif len(image_formats) > 0:
+            image_format = image_formats[0]
+        else:
+            raise OSError
+
+        image = wms.getmap(
+            layers=layers,
+            styles=[''] * len(layers),
+            srs=srs,
+            bbox=bbox,
+            size=size,
+            format=image_format,
+            transparent=True,
+        )
+
+        img_temp = NamedTemporaryFile(delete=True)
+        img_temp.write(image.read())
+        img_temp.flush()
+
+        image_filename = self.slug + '.' + image_format.split('/')[1]
+
+        self.preview.save(image_filename, File(img_temp), save=False)
