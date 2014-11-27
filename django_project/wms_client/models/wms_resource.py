@@ -9,16 +9,18 @@ __doc__ = ''
 
 
 import os
+import random
+import urllib
+import imghdr
+from datetime import datetime
 from django.contrib.gis.db import models
 from django.conf.global_settings import MEDIA_ROOT
 from django.utils.text import slugify
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
-import random
 from owslib.wms import WebMapService, ServiceException, CapabilitiesError
-import urllib
-import imghdr
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -278,17 +280,20 @@ class WMSResource(models.Model):
             except Exception as e:
                 logger.info('Failed to use retrieve_map_direct, %s' % e)
 
-        img_temp = NamedTemporaryFile(delete=True)
-        img_temp.write(image.read())
-        img_temp.flush()
+        image_temp = NamedTemporaryFile(delete=True)
+        image_temp.write(image.read())
+        image_temp.flush()
 
-        image_filename = self.slug + '.' + image_format.split('/')[1]
+        now = datetime.now()
+        now_str = now.strftime("%Y%m%d_%H%M%S")
+        extension = image_format.split('/')[1]
+        image_filename = '%s_%s.%s' % (self.slug, now_str, extension)
 
-        self.preview.save(image_filename, File(img_temp), save=False)
+        self.preview.save(image_filename, File(image_temp), save=False)
 
         if not imghdr.what(self.preview.path):
             logger.info('The image is not valid')
-            self.preview = ''
+            self.preview = None
 
     @staticmethod
     def construct_url(uri, bbox, srs, size, image_format, styles, layers):
