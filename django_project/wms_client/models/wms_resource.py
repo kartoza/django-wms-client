@@ -17,12 +17,17 @@ from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 import random
 from owslib.wms import WebMapService, ServiceException, CapabilitiesError
+import urllib
+import imghdr
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class WMSResource(models.Model):
     """WMS Resource model."""
 
-    zoom_lookup = [360.0 / 2**i for i in range(20)]
+    zoom_lookup = [360.0 / 2 ** i for i in range(20)]
 
     class Meta:
         """Meta class."""
@@ -158,8 +163,8 @@ class WMSResource(models.Model):
         try:
             if not self.preview:
                 self.populate_preview()
-        except Exception as _:
-            pass
+        except Exception as e:
+            logger.info('Failed to populate preview, %s' % e)
 
         super(WMSResource, self).save(*args, **kwargs)
 
@@ -257,15 +262,21 @@ class WMSResource(models.Model):
         else:
             raise OSError
 
-        image = wms.getmap(
-            layers=layers,
-            styles=[''] * len(layers),
-            srs=srs,
-            bbox=bbox,
-            size=size,
-            format=image_format,
-            transparent=True,
-        )
+        image = None
+        styles = []
+
+        try:
+            image = self.retrieve_map_owslib(
+                self.uri, bbox, srs, size, image_format, styles, layers, wms)
+        except Exception as e:
+            logger.info('Failed to use retrieve_map_owslib, %s' % e)
+
+        if not image:
+            try:
+                image = self.retrieve_map_direct(
+                    self.uri, bbox, srs, size, image_format, styles, layers)
+            except Exception as e:
+                logger.info('Failed to use retrieve_map_direct, %s' % e)
 
         img_temp = NamedTemporaryFile(delete=True)
         img_temp.write(image.read())
@@ -274,3 +285,58 @@ class WMSResource(models.Model):
         image_filename = self.slug + '.' + image_format.split('/')[1]
 
         self.preview.save(image_filename, File(img_temp), save=False)
+
+        if not imghdr.what(self.preview.path):
+            logger.info('The image is not valid')
+            self.preview = ''
+
+    @staticmethod
+    def construct_url(uri, bbox, srs, size, image_format, styles, layers):
+        """Constructing URL for retrieving image from WMS Server."""
+        full_uri = uri
+        full_uri += '&BBOX=%s' % ",".join(map(str, bbox))
+        full_uri += '&SRS=%s' % srs
+        full_uri += '&HEIGHT=%d&WIDTH=%d' % size
+        full_uri += '&TRANSPARENT=true'
+        full_uri += '&FORMAT=%s' % image_format
+        full_uri += '&STYLES=%s' % ",".join(map(str, styles))
+        full_uri += '&LAYERS=%s' % ','.join(layers)
+        full_uri += '&VERSION=1.1.1'
+        full_uri += '&REQUEST=GetMap'
+        full_uri += '&SERVICE=WMS'
+
+        return full_uri
+
+    @staticmethod
+    def retrieve_map_owslib(
+            uri, bbox, srs, size, image_format, styles, layers, wms=None):
+        """Retrieve image of a map from wms server using owslib."""
+
+        if not wms:
+            # Get the wms object
+            wms = WebMapService(uri)
+
+        # This is important to make sure they have the same length
+        if len(styles) != len(layers):
+            styles = [''] * len(layers)
+
+        image = wms.getmap(
+            layers=layers,
+            styles=styles,
+            srs=srs,
+            bbox=bbox,
+            size=size,
+            format=image_format,
+            transparent=True
+        )
+
+        return image
+
+    def retrieve_map_direct(
+            self, uri, bbox, srs, size, image_format, styles, layers):
+        """Retrieve map image from wms server using direct get map request."""
+        full_uri = self.construct_url(
+            uri, bbox, srs, size, image_format, styles, layers)
+        image = urllib.urlopen(full_uri)
+
+        return image
