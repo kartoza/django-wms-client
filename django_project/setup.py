@@ -28,6 +28,8 @@ setup(
         "django-leaflet",
         "psycopg2",
         "factory-boy",
-    ],
+        "django-pipeline",
+        "OWSLib",
+        "pillow"],
     test_suite='wms_client.run_tests.run',
 )
