@@ -15,6 +15,5 @@ class Migration(migrations.Migration):
             model_name='wmsresource',
             name='descriptions',
             field=models.TextField(help_text=b'This is similar to abstract part of a wms resources.', blank=True),
-            preserve_default=True,
         ),
     ]

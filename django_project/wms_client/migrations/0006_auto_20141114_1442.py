@@ -16,12 +16,10 @@ class Migration(migrations.Migration):
             model_name='wmsresource',
             name='max_zoom',
             field=models.IntegerField(default=19, help_text=b'Default minimum zoom level (0-19) for this map. Defaults to 19', null=True, blank=True, validators=[django.core.validators.MaxValueValidator(19), django.core.validators.MinValueValidator(0)]),
-            preserve_default=True,
         ),
         migrations.AlterField(
             model_name='wmsresource',
             name='min_zoom',
             field=models.IntegerField(blank=True, help_text=b'Default minimum zoom level (0-19) for this map.', null=True, validators=[django.core.validators.MaxValueValidator(19), django.core.validators.MinValueValidator(0)]),
-            preserve_default=True,
         ),
     ]
